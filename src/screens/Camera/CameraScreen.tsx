@@ -32,7 +32,7 @@ export default function CameraScreen() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [flash, setFlash] = useState<"on" | "off">("off");
   const [permission, requestPermission] = useCameraPermissions();
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   if (!permission) {
     return <View style={styles.center} />;
@@ -55,18 +55,19 @@ export default function CameraScreen() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   };
 
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      try {
-        // ✅ ambil foto
-        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
-        // langsung kirim ke LoadingProses
-        navigation.navigate("LoadingProses", { uri: photo.uri });
-      } catch (err) {
-        Alert.alert("Error", "Gagal mengambil foto");
-      }
+const takePicture = async () => {
+  if (cameraRef.current && !isCapturing) {
+    setIsCapturing(true);
+    try {
+      const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+      navigation.navigate("LoadingProses", { uri: photo.uri });
+    } catch (err) {
+      Alert.alert("Error", "Gagal mengambil foto");
+    } finally {
+      setIsCapturing(false);
     }
-  };
+  }
+};
 
   const toggleFlash = () => {
     setFlash((f) => (f === "on" ? "off" : "on"));
@@ -86,44 +87,48 @@ export default function CameraScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      {photoUri ? (
-        <Image source={{ uri: photoUri }} style={styles.preview} />
-      ) : (
-        <CameraView ref={cameraRef} style={styles.preview} facing={facing} flash={flash} />
-      )}
+  <View style={styles.container}>
+    <CameraView
+      ref={cameraRef}
+      style={styles.preview}
+      facing={facing}
+      flash={flash}
+    />
 
-      {/* tombol back di pojok kiri atas */}
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={[styles.topButton, { top: insets.top + 10 }]}
-      >
-        <Ionicons name="arrow-back" size={26} color="white" />
+    {/* tombol back */}
+    <TouchableOpacity
+      onPress={() => navigation.goBack()}
+      style={[styles.topButton, { top: insets.top + 10 }]}
+    >
+      <Ionicons name="arrow-back" size={26} color="white" />
+    </TouchableOpacity>
+
+    {/* tombol bawah */}
+    <View style={[styles.controls, { paddingBottom: insets.bottom + 12 }]}>
+      {/* kiri: flash toggle */}
+      <TouchableOpacity style={styles.smallButton} onPress={toggleFlash}>
+        <Ionicons name="flash" size={22} color="#000" />
       </TouchableOpacity>
 
-      {/* tombol bawah */}
-      <View style={[styles.controls, { paddingBottom: insets.bottom + 12 }]}>
-        {/* kiri: flip / retake */}
-        <TouchableOpacity style={styles.smallButton} onPress={toggleFlash}>
-          <Ionicons name="flash" size={22} color="#000" />
-        </TouchableOpacity>
+      {/* tengah: shutter */}
+      <TouchableOpacity
+  activeOpacity={0.8}
+  onPress={takePicture}
+  disabled={isCapturing}
+  style={[styles.shutterOuter, isCapturing && { opacity: 0.5 }]}
+>
+  <View style={styles.shutterInner} />
+</TouchableOpacity>
 
-        {/* tengah: shutter */}
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={takePicture}
-          style={styles.shutterOuter}
-        >
-          <View style={styles.shutterInner} />
-        </TouchableOpacity>
 
-        {/* kanan: gallery */}
-        <TouchableOpacity style={styles.smallButton} onPress={openGallery}>
-          <Ionicons name="images" size={22} color="#000" />
-        </TouchableOpacity>
-      </View>
+      {/* kanan: gallery */}
+      <TouchableOpacity style={styles.smallButton} onPress={openGallery}>
+        <Ionicons name="images" size={22} color="#000" />
+      </TouchableOpacity>
     </View>
-  );
+  </View>
+);
+
 }
 
 const styles = StyleSheet.create({
