@@ -25,7 +25,7 @@
       "package": "com.christ_roland12.plantguard"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icons.png"
     },
     "plugins": [
       "expo-router"
