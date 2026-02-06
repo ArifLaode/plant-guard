@@ -30,7 +30,7 @@ export default function LoadingProses() {
           type: "image/jpeg",
         } as any);
 
-        const res = await fetch("http://103.253.212.20/predict", {
+        const res = await fetch("https://103.253.212.20.nip.io/predict", {
           method: "POST",
           body: formData,
           headers: {
