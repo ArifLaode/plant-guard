@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { CameraStackParamList } from "../../navigation/CamerStack"; // 👈 import
+import type { CameraStackParamList } from "../../navigation/CameraStack"; // 👈 import
+import Header from "../../components/Header";
+
 
 type LoadingProsesNavProp = NativeStackNavigationProp<
   CameraStackParamList,
@@ -29,14 +31,11 @@ export default function LoadingProses() {
         name: "photo.jpg",
       } as any);
 
-      console.log("📡 [LoadingProses] Mengirim request POST ke http://192.168.1.35:5000/predict");
+      console.log("📡 [LoadingProses] Mengirim request POST ke http://103.253.212.20/predict");
 
-      const res = await fetch("http://192.168.1.35:5000/predict", {
+      const res = await fetch("http://103.253.212.20/predict", {
         method: "POST",
         body: formData,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
       });
 
       console.log("✅ [LoadingProses] Response diterima:", res.status, res.statusText);
@@ -58,9 +57,46 @@ export default function LoadingProses() {
 
 
   return (
-    <View>
-      <Text>Memproses Gambar...</Text>
-      <ActivityIndicator size="large" color="yellow" />
+  <View style={styles.container}>
+    <Header title="Memproses Gambar" />
+
+    <View style={styles.content}>
+      <ActivityIndicator size="large" color="#f25c27" />
+
+      <Text style={styles.title}>Memproses Gambar</Text>
+
+      <Text style={styles.subtitle}>
+        Mohon tunggu sebentar, sistem sedang menganalisis gambar.
+      </Text>
     </View>
-  );
+  </View>
+);
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+
+  content: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 30,
+  },
+
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginTop: 16,
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginTop: 6,
+    lineHeight: 20,
+  },
+});

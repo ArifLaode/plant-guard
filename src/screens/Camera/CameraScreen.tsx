@@ -7,17 +7,13 @@ import {
   Image,
   Alert,
 } from "react-native";
-import {
-  CameraView,
-  useCameraPermissions,
-  CameraType,
-} from "expo-camera";
+import { CameraView, useCameraPermissions, CameraType } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import type { CameraStackParamList } from "../../navigation/CamerStack"; // 👈 import
+import type { CameraStackParamList } from "../../navigation/CameraStack"; // 👈 import
 
 type CameraNavProp = NativeStackNavigationProp<
   CameraStackParamList,
@@ -28,6 +24,7 @@ export default function CameraScreen() {
   const navigation = useNavigation<CameraNavProp>();
   const insets = useSafeAreaInsets();
   const cameraRef = React.useRef<CameraView>(null);
+  const isFocused = useIsFocused();
 
   const [facing, setFacing] = useState<CameraType>("back");
   const [flash, setFlash] = useState<"on" | "off">("off");
@@ -55,23 +52,23 @@ export default function CameraScreen() {
     setFacing((current) => (current === "back" ? "front" : "back"));
   };
 
-const takePicture = async () => {
-  if (cameraRef.current && !isCapturing) {
-    setIsCapturing(true);
-    try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
-      navigation.navigate("LoadingProses", { uri: photo.uri });
-    } catch (err) {
-      Alert.alert("Error", "Gagal mengambil foto");
-    } finally {
-      setIsCapturing(false);
+  const takePicture = async () => {
+    if (cameraRef.current && !isCapturing) {
+      setIsCapturing(true);
+      try {
+        const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+        navigation.navigate("LoadingProses", { uri: photo.uri });
+      } catch (err) {
+        Alert.alert("Error", "Gagal mengambil foto");
+      } finally {
+        setIsCapturing(false);
+      }
     }
-  }
-};
+  };
 
   const toggleFlash = () => {
     setFlash((f) => (f === "on" ? "off" : "on"));
-  }
+  };
 
   const openGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -87,48 +84,48 @@ const takePicture = async () => {
   };
 
   return (
-  <View style={styles.container}>
-    <CameraView
-      ref={cameraRef}
-      style={styles.preview}
-      facing={facing}
-      flash={flash}
-    />
+    <View style={styles.container}>
+      {isFocused && (
+        <CameraView
+        ref={cameraRef}
+        style={styles.preview}
+        facing={facing}
+        flash={flash}
+      />
+      )}
 
-    {/* tombol back */}
-    <TouchableOpacity
-      onPress={() => navigation.goBack()}
-      style={[styles.topButton, { top: insets.top + 10 }]}
-    >
-      <Ionicons name="arrow-back" size={26} color="white" />
-    </TouchableOpacity>
-
-    {/* tombol bawah */}
-    <View style={[styles.controls, { paddingBottom: insets.bottom + 12 }]}>
-      {/* kiri: flash toggle */}
-      <TouchableOpacity style={styles.smallButton} onPress={toggleFlash}>
-        <Ionicons name="flash" size={22} color="#000" />
-      </TouchableOpacity>
-
-      {/* tengah: shutter */}
+      {/* tombol back */}
       <TouchableOpacity
-  activeOpacity={0.8}
-  onPress={takePicture}
-  disabled={isCapturing}
-  style={[styles.shutterOuter, isCapturing && { opacity: 0.5 }]}
->
-  <View style={styles.shutterInner} />
-</TouchableOpacity>
-
-
-      {/* kanan: gallery */}
-      <TouchableOpacity style={styles.smallButton} onPress={openGallery}>
-        <Ionicons name="images" size={22} color="#000" />
+        onPress={() => navigation.goBack()}
+        style={[styles.topButton, { top: insets.top + 10 }]}
+      >
+        <Ionicons name="arrow-back" size={26} color="white" />
       </TouchableOpacity>
-    </View>
-  </View>
-);
 
+      {/* tombol bawah */}
+      <View style={[styles.controls, { paddingBottom: insets.bottom + 12 }]}>
+        {/* kiri: flash toggle */}
+        <TouchableOpacity style={styles.smallButton} onPress={toggleFlash}>
+          <Ionicons name="flash" size={22} color="#000" />
+        </TouchableOpacity>
+
+        {/* tengah: shutter */}
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={takePicture}
+          disabled={isCapturing}
+          style={[styles.shutterOuter, isCapturing && { opacity: 0.5 }]}
+        >
+          <View style={styles.shutterInner} />
+        </TouchableOpacity>
+
+        {/* kanan: gallery */}
+        <TouchableOpacity style={styles.smallButton} onPress={openGallery}>
+          <Ionicons name="images" size={22} color="#000" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

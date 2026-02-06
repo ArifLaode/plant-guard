@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ title, onMenuPress }) => {
 
     return (
     <View style={styles.container}>
-      <Image source={require("../../assets/icon.png")} style={styles.logo} />
+      <Image source={require("../../assets/logo.png")} style={styles.logo} />
       <Text style={styles.title}>{title}</Text>
       <TouchableOpacity onPress={handleMenuPress} style={styles.menuButton}>
         <Entypo name="dots-three-vertical" size={24} color="#fff" />

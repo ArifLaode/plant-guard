@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import HomeStack from "./HomeStack";
 import TabBar from "../components/TabBar";
-import CameraStack from "./CamerStack";
+import CameraStack from "./CameraStack";
 import SettingStack from "./SetingStack";
 
 export type RootTabParamList = {
